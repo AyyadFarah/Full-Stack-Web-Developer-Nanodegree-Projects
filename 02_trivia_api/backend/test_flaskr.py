@@ -94,7 +94,7 @@ class TriviaTestCase(unittest.TestCase):
             'question': 'question',
             'answer': 'answer',
             'difficulty': 3,
-            'category': 'category'
+            'category': '1'
         })
         data = json.loads(res.data)
 
@@ -128,6 +128,16 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['questions'])
         self.assertTrue(data['totalQuestions'])
 
+    def test_404_search_questions(self):
+        res = self.client().post('/questions', json={
+            'searchTerm': 'questions dosnot exist'
+        })
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['message'], 'resource not found')
+        self.assertFalse(data['success'])
+
     def test_retrieve_questions_by_category(self):
         res = self.client().get('/categories/1/questions')
         data = json.loads(res.data)
@@ -136,6 +146,14 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data['success'])
         self.assertTrue(data['questions'])
         self.assertTrue(data['totalQuestions'])
+
+    def test_404_retrieve_questions_by_category(self):
+        res = self.client().get('/categories/-1/questions')
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(data['message'], 'resource not found')
+        self.assertFalse(data['success'])
 
     def test_get_random_question(self):
         res = self.client().post('/quizzes', json={
@@ -149,7 +167,7 @@ class TriviaTestCase(unittest.TestCase):
 
     def test_404_get_random_question(self):
         res = self.client().post('/quizzes', json={
-            'quiz_category': '2',
+            'quiz_category': 'wrong_cat',
         })
         data = json.loads(res.data)
 
